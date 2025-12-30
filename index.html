@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VA Job Analyzer - 14-Day Learning Plan Generator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #fff 50%, #fae8ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .icon { width: 70px; height: 70px; background: linear-gradient(135deg, #2563eb, #9333ea);
+            border-radius: 20px; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 35px; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1 { font-size: 2.5em; color: #1f2937; margin-bottom: 10px; }
+        .subtitle { font-size: 1.2em; color: #6b7280; margin-bottom: 15px; }
+        .badge { display: inline-block; padding: 8px 16px; background: #d1fae5;
+            border: 2px solid #10b981; border-radius: 10px; color: #065f46; font-weight: 600; }
+        .card { background: white; border-radius: 20px; padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        label { display: block; font-weight: 600; color: #374151; margin-bottom: 8px; }
+        textarea { width: 100%; padding: 15px; border: 2px solid #e5e7eb; border-radius: 12px;
+            font-size: 0.95em; font-family: inherit; resize: vertical; }
+        textarea:focus { outline: none; border-color: #3b82f6; }
+        .hint { font-size: 0.85em; color: #6b7280; margin-top: 6px; }
+        button { width: 100%; padding: 18px; background: linear-gradient(135deg, #2563eb, #9333ea);
+            color: white; border: none; border-radius: 12px; font-size: 1.05em; font-weight: 600;
+            cursor: pointer; margin-top: 20px; }
+        button:hover:not(:disabled) { transform: translateY(-2px); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .error { background: #fee2e2; border: 2px solid #ef4444; padding: 15px;
+            border-radius: 12px; color: #991b1b; margin-bottom: 15px; display: none; }
+        .loading { text-align: center; padding: 40px; display: none; }
+        .spinner { width: 50px; height: 50px; border: 4px solid #e5e7eb;
+            border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;
+            margin: 0 auto 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .results { display: none; }
+        .download-section { background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border: 2px solid #10b981; border-radius: 20px; padding: 25px; margin-bottom: 30px; }
+        .download-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px; margin-top: 20px; }
+        .download-btn { background: white; border: 2px solid #059669; color: #065f46;
+            padding: 15px; margin: 0; cursor: pointer; border-radius: 12px; font-weight: 600; }
+        .section-title { font-size: 1.5em; font-weight: 700; color: #1f2937; margin-bottom: 20px; }
+        .skill-tag { display: inline-block; padding: 8px 14px; border-radius: 8px;
+            font-size: 0.85em; font-weight: 500; margin: 5px; }
+        .skill-has { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+        .skill-need { background: #dbeafe; color: #1e40af; border: 1px solid #3b82f6; }
+        .skill-high { background: #9333ea; color: white; }
+        .day-card { border: 2px solid #dbeafe; border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .day-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .day-number { width: 45px; height: 45px; background: #2563eb; color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.1em; }
+        .resource-box { border-radius: 10px; padding: 15px; margin: 10px 0; font-size: 0.9em; }
+        .lesson-box { background: #eff6ff; border: 2px solid #3b82f6; }
+        .video-box { background: #fef3c7; border: 1px solid #f59e0b; }
+        .practice-box { background: #f3e8ff; border: 1px solid #a855f7; }
+        .submit-box { background: #d1fae5; border: 1px solid #10b981; }
+        .ai-box { background: linear-gradient(135deg, #2563eb, #9333ea); color: white;
+            border-radius: 20px; padding: 30px; margin-bottom: 30px; }
+        .cta-box { background: linear-gradient(135deg, #2563eb, #9333ea); color: white;
+            border-radius: 20px; padding: 40px; text-align: center; }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; margin-top: 15px; }
+        code { background: white; padding: 3px 8px; border-radius: 5px; font-family: monospace; }
+        .steps-box { background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px; padding: 20px; margin: 15px 0; }
+        .step-item { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+        .step-num { width: 28px; height: 28px; background: #f59e0b; color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 0.85em; font-weight: 700; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">💼</div>
+            <h1>VA Job Analyzer</h1>
+            <p class="subtitle">Your personalized 14-day path to becoming a hired Virtual Assistant</p>
+            <div class="badge">✨ Includes lessons + Google Drive workflow</div>
+        </div>
+
+        <div class="card">
+            <label for="jobInput">Paste Virtual Assistant Job Description or URL</label>
+            <textarea id="jobInput" rows="8" placeholder="Paste the full VA job description here..."></textarea>
+
+            <label for="skillsInput" style="margin-top: 20px;">Your Current Skills (Optional)</label>
+            <textarea id="skillsInput" rows="4" placeholder="E.g., Good with Gmail, basic Excel, customer service experience..."></textarea>
+            <p class="hint">Leave blank if starting from scratch!</p>
+
+            <div class="error" id="error"></div>
+
+            <button onclick="analyzeJob()" id="analyzeBtn">
+                🎯 Analyze Job & Generate VA Learning Plan
+            </button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="color: #6b7280; font-size: 1.1em;">Creating Your Complete VA Training Plan...</p>
+            <p style="color: #9ca3af; font-size: 0.9em; margin-top: 10px;">This takes 30-60 seconds</p>
+        </div>
+
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        let analysisData = null;
+
+        async function analyzeJob() {
+            const jobInput = document.getElementById('jobInput').value.trim();
+            const skillsInput = document.getElementById('skillsInput').value.trim();
+            const errorDiv = document.getElementById('error');
+            const loadingDiv = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+
+            if (!jobInput) {
+                errorDiv.textContent = 'Please paste a job description';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            errorDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            resultsDiv.style.display = 'none';
+            analyzeBtn.disabled = true;
+
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 8000,
+                        messages: [{
+                            role: 'user',
+                            content: 'You are a VA career coach. Analyze this job and create a 14-day learning plan.\n\nJOB: ' + jobInput + '\n\nSKILLS: ' + (skillsInput || 'Beginner') + '\n\nProvide JSON with: jobTitle, salaryRange, skillGap{hasAlready[], needToLearn[], highImpact[]}, learningPlan{week1[{day, focus, lesson, videoSearch, practice, deliverable, estimatedTime}], week2[{day, focus, lesson, steps[], deliverable}]}, portfolioPieces[{title, description}], aiAdvantage, aiUseCases[], applicationTips[]'
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.content && data.content[0]) {
+                    let text = data.content[0].text.replace(/```json\n?/g, '').replace(/```/g, '').trim();
+                    const start = text.indexOf('{');
+                    const end = text.lastIndexOf('}');
+                    if (start >= 0 && end > start) text = text.substring(start, end + 1);
+                    analysisData = JSON.parse(text);
+                    displayResults(analysisData);
+                } else {
+                    throw new Error('No response');
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Error: Could not analyze job. Try a simpler description.';
+                errorDiv.style.display = 'block';
+            } finally {
+                loadingDiv.style.display = 'none';
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        function displayResults(d) {
+            let html = '<div class="download-section"><h2 class="section-title">📥 Download Materials</h2><div class="download-grid"><button class="download-btn" onclick="downloadChecklist()">📋 Checklist</button><button class="download-btn" onclick="downloadPortfolio()">📄 Portfolio</button></div></div>';
+
+            html += '<div class="card"><h2 class="section-title">💼 Job Analysis</h2><div class="grid-2"><div><p style="font-size:0.85em;color:#6b7280;font-weight:600">JOB</p><p style="font-size:1.2em;font-weight:700">' + d.jobTitle + '</p></div><div><p style="font-size:0.85em;color:#6b7280;font-weight:600">SALARY</p><p style="font-size:1.2em;font-weight:700;color:#10b981">' + d.salaryRange + '</p></div></div></div>';
+
+            html += '<div class="card"><h2 class="section-title">🎯 Skill Gap</h2>';
+            if (d.skillGap.hasAlready && d.skillGap.hasAlready.length > 0) {
+                html += '<h3 style="color:#065f46;margin:10px 0">✅ You Have</h3>';
+                d.skillGap.hasAlready.forEach(s => html += '<span class="skill-tag skill-has">' + s + '</span>');
+            }
+            html += '<h3 style="color:#1e40af;margin:20px 0 10px">📚 Learn These</h3>';
+            d.skillGap.needToLearn.forEach(s => html += '<span class="skill-tag skill-need">' + s + '</span>');
+            html += '<div style="background:#faf5ff;padding:20px;border-radius:15px;margin-top:20px;border:2px solid #a855f7"><h3 style="color:#581c87;margin-bottom:10px">🚀 High Impact</h3>';
+            d.skillGap.highImpact.forEach(s => html += '<span class="skill-tag skill-high">' + s + '</span>');
+            html += '</div></div>';
+
+            html += '<div class="ai-box"><h2 style="font-size:1.8em;margin-bottom:15px">🤖 AI Superpower</h2><p style="font-size:1.1em;line-height:1.6">' + d.aiAdvantage + '</p>';
+            if (d.aiUseCases) {
+                html += '<div style="margin-top:15px">';
+                d.aiUseCases.forEach(u => html += '<div>✓ ' + u + '</div>');
+                html += '</div>';
+            }
+            html += '</div>';
+
+            html += '<div class="card"><h2 class="section-title">📖 14-Day Plan</h2><h3 style="font-size:1.3em;border-bottom:3px solid #dbeafe;padding-bottom:10px;margin-bottom:20px">Week 1</h3>';
+            
+            d.learningPlan.week1.forEach(day => {
+                html += '<div class="day-card"><div class="day-header"><div class="day-number">' + day.day + '</div><div><h4 style="font-size:1.2em;font-weight:700">' + day.focus + '</h4><p style="font-size:0.9em;color:#6b7280">' + (day.estimatedTime || '2-3 hours') + '</p></div></div>';
+                if (day.lesson) {
+                    html += '<div class="resource-box lesson-box"><strong style="color:#1e40af">📚 LESSON</strong><div style="margin-top:10px;line-height:1.6">' + day.lesson + '</div></div>';
+                }
+                html += '<div class="resource-box video-box"><strong>📹 VIDEO (Supplementary)</strong><br>Search: <code>' + day.videoSearch + '</code></div>';
+                html += '<div class="resource-box practice-box"><strong>💪 PRACTICE</strong><br>' + day.practice + '</div>';
+                html += '<div class="resource-box submit-box"><strong>✅ SUBMIT</strong><br>' + day.deliverable + '<br><small>Upload to Day ' + day.day + ' folder</small></div></div>';
+            });
+
+            html += '<h3 style="font-size:1.3em;border-bottom:3px solid #f3e8ff;padding-bottom:10px;margin:30px 0 20px">Week 2</h3>';
+            d.learningPlan.week2.forEach(day => {
+                html += '<div class="day-card" style="border-color:#f3e8ff"><div class="day-header"><div class="day-number" style="background:#9333ea">' + day.day + '</div><div><h4 style="font-size:1.2em;font-weight:700">' + day.focus + '</h4></div></div>';
+                if (day.lesson) {
+                    html += '<div class="resource-box" style="background:#faf5ff;border:2px solid #9333ea"><strong style="color:#581c87">💡 INSTRUCTIONS</strong><div style="margin-top:10px">' + day.lesson + '</div></div>';
+                }
+                if (day.steps && day.steps.length > 0) {
+                    html += '<div class="steps-box"><strong style="color:#92400e">📝 STEP-BY-STEP</strong>';
+                    day.steps.forEach((step, i) => {
+                        html += '<div class="step-item"><div class="step-num">' + (i + 1) + '</div><p style="margin:0;padding-top:3px">' + step + '</p></div>';
+                    });
+                    html += '</div>';
+                }
+                if (day.deliverable) {
+                    html += '<div class="resource-box submit-box"><strong>✅ DELIVERABLE</strong><br>' + day.deliverable + '</div>';
+                }
+                html += '</div>';
+            });
+
+            html += '</div><div class="cta-box"><h2 style="font-size:2em;margin-bottom:15px">🎉 Ready!</h2><p style="font-size:1.1em;margin-bottom:25px">Download and start Day 1 tomorrow!</p><button onclick="downloadChecklist()" style="background:white;color:#2563eb;max-width:350px;margin:0 auto">📋 Download Checklist</button></div>';
+
+            document.getElementById('results').innerHTML = html;
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function downloadChecklist() {
+            if (!analysisData) return;
+            let text = 'VA 14-DAY CHECKLIST\n\nJob: ' + analysisData.jobTitle + '\nSalary: ' + analysisData.salaryRange + '\n\nWEEK 1\n\n';
+            analysisData.learningPlan.week1.forEach(d => {
+                text += 'DAY ' + d.day + ': ' + d.focus + '\n';
+                if (d.lesson) text += 'LESSON: ' + d.lesson + '\n';
+                text += 'VIDEO: ' + d.videoSearch + '\nPRACTICE: ' + d.practice + '\nSUBMIT: ' + d.deliverable + '\n\n';
+            });
+            text += '\nWEEK 2\n\n';
+            analysisData.learningPlan.week2.forEach(d => {
+                text += 'DAY ' + d.day + ': ' + d.focus + '\n' + (d.lesson || d.task || '') + '\n\n';
+            });
+            downloadFile(text, 'VA-Checklist.txt');
+        }
+
+        function downloadPortfolio() {
+            const text = 'VA PORTFOLIO TEMPLATE\n\n[YOUR NAME]\nVirtual Assistant | AI-Enhanced\n\nSKILLS\n- Email Management\n- Calendar Management\n- AI-Powered Productivity\n\nPORTFOLIO PIECE 1\nChallenge: [Problem]\nSolution: [What you did]\nResults: [Outcomes]\n\nCONTACT\nEmail: [your email]';
+            downloadFile(text, 'VA-Portfolio.txt');
+        }
+
+        function downloadFile(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+        }
+    </script>
+</body>
+</html>
