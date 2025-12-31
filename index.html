@@ -82,7 +82,7 @@
             <div class="icon">💼</div>
             <h1>VA Job Analyzer</h1>
             <p class="subtitle">Your personalized 14-day path to becoming a hired Virtual Assistant</p>
-            <div class="badge">✨ Works on Mobile & Desktop</div>
+            <div class="badge">✨ Includes lessons + Google Drive workflow</div>
         </div>
 
         <div class="card">
@@ -132,26 +132,32 @@
             analyzeBtn.disabled = true;
 
             try {
-                const response = await fetch('/api/analyze', {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        jobInput: jobInput,
-                        skillsInput: skillsInput
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 8000,
+                        messages: [{
+                            role: 'user',
+                            content: 'You are a VA career coach. Analyze this job and create a 14-day learning plan.\n\nJOB: ' + jobInput + '\n\nSKILLS: ' + (skillsInput || 'Beginner') + '\n\nProvide JSON with: jobTitle, salaryRange, skillGap{hasAlready[], needToLearn[], highImpact[]}, learningPlan{week1[{day, focus, lesson, videoSearch, practice, deliverable, estimatedTime}], week2[{day, focus, lesson, steps[], deliverable}]}, portfolioPieces[{title, description}], aiAdvantage, aiUseCases[], applicationTips[]'
+                        }]
                     })
                 });
 
                 const data = await response.json();
-
-                if (response.ok) {
-                    analysisData = data;
-                    displayResults(data);
+                if (data.content && data.content[0]) {
+                    let text = data.content[0].text.replace(/```json\n?/g, '').replace(/```/g, '').trim();
+                    const start = text.indexOf('{');
+                    const end = text.lastIndexOf('}');
+                    if (start >= 0 && end > start) text = text.substring(start, end + 1);
+                    analysisData = JSON.parse(text);
+                    displayResults(analysisData);
                 } else {
-                    throw new Error(data.error || 'Analysis failed');
+                    throw new Error('No response');
                 }
             } catch (err) {
-                console.error('Error:', err);
-                errorDiv.textContent = 'Error: ' + (err.message || 'Could not analyze job. Please try again.');
+                errorDiv.textContent = 'Error: Could not analyze job. Try a simpler description.';
                 errorDiv.style.display = 'block';
             } finally {
                 loadingDiv.style.display = 'none';
